@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#110b18">
+  <meta name="description" content="Temple of Horus, puzzle de física y match-3 creado por Pilukarts.">
+  <title>Temple of Horus — Pilukarts</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="dust" aria-hidden="true"></div>
+  <main class="game-shell">
+    <header>
+      <div class="brand"><span class="eye">𓂀</span><div><small>PILUKARTS PRESENTS</small><h1>TEMPLE <em>OF HORUS</em></h1></div></div>
+      <button id="sound" class="icon" aria-label="Sonido">♫</button>
+    </header>
+
+    <section class="hud">
+      <div><small>PUNTOS</small><strong id="score">0</strong></div>
+      <div><small>NIVEL</small><strong id="level">1</strong></div>
+      <div><small>COMBOS</small><strong id="combos">0</strong></div>
+      <div class="horus-meter"><small>OJO DE HORUS</small><div><i id="meter"></i></div><b id="meterText">0 / 6</b></div>
+    </section>
+
+    <section class="temple">
+      <div class="obelisk left" aria-hidden="true">𓋹<br>𓆣<br>𓂀</div>
+      <div class="obelisk right" aria-hidden="true">𓂀<br>𓆣<br>𓋹</div>
+      <div id="bonusChute" class="bonus-chute" aria-hidden="true"><span>CANAL DE HORUS</span><div class="randomizer">𓂀<small>DESTINO</small></div></div>
+      <div id="columnButtons" class="column-buttons" aria-label="Elige una columna"></div>
+      <div id="board" class="board" role="grid" aria-label="Tablero del Templo de Horus"></div>
+      <div class="temple-door"><span>𓂀</span></div>
+    </section>
+
+    <section class="next-panel">
+      <div><small>SIGUIENTE RELIQUIA</small><span id="nextBall" class="relic preview"></span></div>
+      <button id="dropButton">SOLTAR RELIQUIA</button>
+    </section>
+    <p id="message" class="message" aria-live="polite">Elige una columna. Une 3 reliquias iguales.</p>
+    <section class="rules"><b>PUZZLE, NO APUESTAS</b><span>Sin dinero real · Sin premios monetarios · Estrategia y física</span></section>
+  </main>
+
+  <div id="intro" class="modal">
+    <div><span class="intro-eye">𓂀</span><small>EL TEMPLO DESPIERTA</small><h2>TEMPLE<br><em>OF HORUS</em></h2><p>Deja caer reliquias egipcias y conecta grupos de tres. Llena el Ojo para abrir el Canal del Destino.</p><button id="start">ENTRAR AL TEMPLO</button></div>
+  </div>
+</body>
+</html>
