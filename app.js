@@ -34,7 +34,7 @@ async function resolve(){
     const popSet=new Set();groups.forEach(g=>g.cells.forEach(x=>popSet.add(x)));render(popSet);tone(520+chain*90,.14);await wait(380);
     let earnedEyes=0,targetHit=false;
     groups.forEach(g=>{
-      const size=g.cells.size;base=size*100*chain*level;score+=base;
+      const size=g.cells.size,base=size*100*chain*level;score+=base;
       if(g.type===chosen){score+=size*100*chain*level;targetHit=true}
       if(size>=4)earnedEyes+=Math.min(3,size-3);
       g.cells.forEach(key=>{const [r,c]=key.split(",").map(Number);board[r][c]=null})
