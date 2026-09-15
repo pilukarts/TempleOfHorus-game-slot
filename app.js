@@ -7,9 +7,9 @@ let nextRow=makeRow(),chosen=randomType(),boardEl=$("#board");
 function tone(freq=440,d=.08,volume=.05){if(!soundOn)return;const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value=freq;g.gain.setValueAtTime(volume,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+d)}
 function relic(type,extra=""){return type===null?"":`<span class="relic ${extra}" data-type="${type}">${TYPES[type]}</span>`}
 function eyeSlots(container,count){container.innerHTML=Array.from({length:count},(_,i)=>`<span class="horus-eye-slot ${i<eyes?"lit":""}">𓂀</span>`).join("")}
-function render(popSet=new Set()){
+function render(popSet=new Set(),fallSet=new Set()){
   boardEl.innerHTML="";
-  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement("div");cell.className="cell";cell.setAttribute("role","gridcell");cell.innerHTML=relic(board[r][c],popSet.has(r+","+c)?"pop":"");boardEl.append(cell)}
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement("div");cell.className="cell";cell.setAttribute("role","gridcell");const key=r+","+c;cell.innerHTML=relic(board[r][c],popSet.has(key)?"pop":fallSet.has(key)?"fall":"");boardEl.append(cell)}
   $("#nextRow").innerHTML=nextRow.map(type=>relic(type,"preview")).join("");
   $("#chosenRelic").outerHTML=`<span id="chosenRelic" class="relic preview" data-type="${chosen}">${TYPES[chosen]}</span>`;
   eyeSlots($("#eyesLeft"),3);eyeSlots($("#eyesRight"),3);eyeSlots($("#eyesMobile"),6);updateHud()
@@ -39,11 +39,11 @@ async function resolve(){
 async function spin(){
   if(busy)return;if(Array.from({length:COLS},(_,c)=>lowest(c)).some(r=>r<0)){gameOver();return}
   busy=true;$("#message").textContent="La fila entra en el templo…";
-  nextRow.forEach((type,c)=>board[lowest(c)][c]=type);nextRow=makeRow();render();tone(260,.12);await wait(520);await resolve();busy=false;checkEnd()
+  const incoming=[...nextRow];nextRow=makeRow();const order=[0,1,2,3,4,5,6];for(const c of order){const row=lowest(c);board[row][c]=incoming[c];render(new Set(),new Set([row+","+c]));tone(230+c*18,.07,.035);await wait(95)}await wait(300);await resolve();busy=false;checkEnd()
 }
 async function bonusDrop(){
   const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return false;
-  const col=available[rand(available.length)];board[lowest(col)][col]=randomType();render();tone(330,.08);await wait(250);await resolve();return true
+  const col=available[rand(available.length)],row=lowest(col);board[row][col]=randomType();render(new Set(),new Set([row+","+col]));tone(330,.08);await wait(250);await resolve();return true
 }
 async function bonusMode(power){
   inBonus=true;eyes=0;$("#bonusChute").classList.add("active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
