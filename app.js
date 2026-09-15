@@ -19,6 +19,8 @@ function updateHud(){
   $(".temple").classList.toggle("eye-tension",eyes>0);$(".temple").classList.toggle("bonus-max",eyes===BONUS_MAX)
 }
 function lowest(col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===null)return r;return-1}
+function emptyCount(){return board.reduce((n,row)=>n+row.filter(v=>v===null).length,0)}
+function landingColumn(origin){const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return-1;available.sort((a,b)=>(lowest(b)-Math.abs(b-origin)*.4+Math.random()*.18)-(lowest(a)-Math.abs(a-origin)*.4+Math.random()*.18));return available[0]}
 function connected(r,c,type,seen=new Set()){const key=r+","+c;if(r<0||r>=ROWS||c<0||c>=COLS||seen.has(key)||board[r][c]!==type)return seen;seen.add(key);connected(r+1,c,type,seen);connected(r-1,c,type,seen);connected(r,c+1,type,seen);connected(r,c-1,type,seen);return seen}
 function matchingGroups(){const groups=[],seen=new Set();for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const key=r+","+c;if(board[r][c]===null||seen.has(key))continue;const type=board[r][c],cells=connected(r,c,type);cells.forEach(x=>seen.add(x));if(cells.size>=3)groups.push({type,cells})}return groups}
 function gravity(){for(let c=0;c<COLS;c++){const vals=[];for(let r=ROWS-1;r>=0;r--)if(board[r][c]!==null)vals.push(board[r][c]);for(let r=ROWS-1;r>=0;r--)board[r][c]=vals[ROWS-1-r]??null}}
@@ -37,9 +39,9 @@ async function resolve(){
   level=1+Math.floor(score/5000);render();if(eyes>=BONUS_MIN&&!inBonus)await bonusMode(eyes)
 }
 async function spin(){
-  if(busy)return;if(Array.from({length:COLS},(_,c)=>lowest(c)).some(r=>r<0)){gameOver();return}
-  busy=true;$("#message").textContent="La fila entra en el templo…";
-  const incoming=[...nextRow],falling=new Set();nextRow=makeRow();for(let c=0;c<COLS;c++){const row=lowest(c);board[row][c]=incoming[c];falling.add(row+","+c)}render(new Set(),falling);for(let c=0;c<COLS;c++){setTimeout(()=>tone(230+c*18,.07,.028),c*45)}await wait(900);await resolve();busy=false;checkEnd()
+  if(busy)return;if(emptyCount()<COLS){gameOver();return}
+  busy=true;$("#message").textContent="Las reliquias buscan los huecos del templo…";
+  const incoming=[...nextRow],falling=new Set();nextRow=makeRow();for(let origin=0;origin<COLS;origin++){const c=landingColumn(origin),row=lowest(c);board[row][c]=incoming[origin];falling.add(row+","+c)}render(new Set(),falling);for(let c=0;c<COLS;c++){setTimeout(()=>tone(230+c*18,.07,.028),c*45)}await wait(900);await resolve();busy=false;checkEnd()
 }
 async function bonusDrop(){
   const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return false;
@@ -51,6 +53,6 @@ async function bonusMode(power){
   $("#bonusChute").classList.remove("active");score+=power*500*level;inBonus=false;render();$("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
 }
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
-function checkEnd(){if(Array.from({length:COLS},(_,c)=>lowest(c)).some(r=>r<0))gameOver()}
+function checkEnd(){if(emptyCount()<COLS)gameOver()}
 function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;$("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()}
 $("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×"};$("#start").onclick=()=>{$("#intro").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()};render();
