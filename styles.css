@@ -32,3 +32,8 @@
 .horus-crown i{width:18px;height:28px;border:1px solid #f3cc70;border-radius:50%;background:#193867;box-shadow:inset 0 0 9px #29deea}.horus-crown .relic.preview{position:relative;z-index:2;width:48px;height:48px;font-size:24px;box-shadow:0 0 18px var(--gold)}.horus-crown small{position:absolute;right:-5px;bottom:-5px;padding:3px 5px;border-radius:8px;background:#0b0711;color:#ffd56c;font-size:8px;font-weight:950}.chosen-relic{grid-template-columns:1fr!important}.chosen-relic strong{color:#fff;font-size:11px}.bonus-chute{top:7px;opacity:0;visibility:hidden;transform:translateY(-100%)}.bonus-chute.active{opacity:1;visibility:visible;transform:none}.bonus-chute .randomizer{opacity:0}.bonus-chute.active .randomizer{opacity:1}.temple.bonus-active .horus-crown{opacity:0;transform:translateX(-50%) translateY(-30px)}
 @media(min-width:700px){.game-shell{width:min(100%,650px)}.board{width:min(100%,calc((100vh - 245px)*.7778));margin-inline:auto}.temple{padding-top:70px;padding-bottom:42px}.hud>div{min-height:48px}.brand .eye{width:44px;height:44px}.brand h1{font-size:22px}}
 @media(max-width:520px){.horus-crown{top:34px;scale:.78;transform-origin:center top}.bonus-chute{top:30px}.temple{padding-top:88px}}
+
+
+/* Slightly larger interface copy */
+.brand small,.hud small,.next-panel small{font-size:10px}.message{font-size:14px;line-height:1.4}.rules{font-size:10px;line-height:1.4}.chosen-relic strong{font-size:12px}.chosen-relic b{font-size:10px}.bonus-chute>span{font-size:9px}.randomizer small{font-size:7px}
+@media(max-width:520px){.brand small,.hud small,.next-panel small{font-size:9px}.message{font-size:12px}.rules{font-size:9px}}
