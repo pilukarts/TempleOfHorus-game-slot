@@ -47,9 +47,9 @@ async function bonusDrop(){
   const col=available[rand(available.length)],row=lowest(col);board[row][col]=randomType();render(new Set(),new Set([row+","+col]));tone(330,.08);await wait(250);await resolve();return true
 }
 async function bonusMode(power){
-  inBonus=true;eyes=0;$("#bonusChute").classList.add("active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
+  inBonus=true;eyes=0;$("#bonusChute").classList.add("active");$(".temple").classList.add("bonus-active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
   for(let i=0;i<power*2;i++){if(!await bonusDrop())break;await wait(140)}
-  $("#bonusChute").classList.remove("active");score+=power*500*level;inBonus=false;render();$("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
+  $("#bonusChute").classList.remove("active");$(".temple").classList.remove("bonus-active");score+=power*500*level;inBonus=false;render();$("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
 }
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
 function checkEnd(){if(emptyCount()<COLS)gameOver()}
