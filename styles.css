@@ -24,3 +24,11 @@
 /* Independent relic spacing */
 .board{gap:7px;padding:8px}.relic{width:86%}.cell:nth-child(3n+1) .relic:not(.fall):not(.pop){rotate:-3deg}.cell:nth-child(3n+2) .relic:not(.fall):not(.pop){rotate:2deg}.chosen-relic small{color:var(--blue)}.chosen-relic b{max-width:92px;line-height:1.25}
 @media(max-width:520px){.board{gap:4px;padding:5px}.relic{width:88%}}
+
+
+/* Crowned objective and clean bonus launcher */
+.horus-crown{position:absolute;left:50%;top:5px;z-index:7;display:grid;grid-template-columns:22px 52px 22px;align-items:center;justify-items:center;transform:translateX(-50%);width:116px;height:58px;border:2px solid #d99936;border-radius:46px 46px 12px 12px;background:linear-gradient(145deg,#7f4924,#e3a63b 30%,#422019 66%,#180c16);box-shadow:0 5px 16px #000,0 0 15px #d9a13c55}
+.horus-crown:before{content:"";position:absolute;left:10px;right:10px;top:-9px;height:18px;border:2px solid #f1c461;border-bottom:0;clip-path:polygon(0 100%,12% 10%,32% 75%,50% 0,68% 75%,88% 10%,100% 100%);background:#8a5023}
+.horus-crown i{width:18px;height:28px;border:1px solid #f3cc70;border-radius:50%;background:#193867;box-shadow:inset 0 0 9px #29deea}.horus-crown .relic.preview{position:relative;z-index:2;width:48px;height:48px;font-size:24px;box-shadow:0 0 18px var(--gold)}.horus-crown small{position:absolute;right:-5px;bottom:-5px;padding:3px 5px;border-radius:8px;background:#0b0711;color:#ffd56c;font-size:8px;font-weight:950}.chosen-relic{grid-template-columns:1fr!important}.chosen-relic strong{color:#fff;font-size:11px}.bonus-chute{top:7px;opacity:0;visibility:hidden;transform:translateY(-100%)}.bonus-chute.active{opacity:1;visibility:visible;transform:none}.bonus-chute .randomizer{opacity:0}.bonus-chute.active .randomizer{opacity:1}.temple.bonus-active .horus-crown{opacity:0;transform:translateX(-50%) translateY(-30px)}
+@media(min-width:700px){.game-shell{width:min(100%,650px)}.board{width:min(100%,calc((100vh - 245px)*.7778));margin-inline:auto}.temple{padding-top:70px;padding-bottom:42px}.hud>div{min-height:48px}.brand .eye{width:44px;height:44px}.brand h1{font-size:22px}}
+@media(max-width:520px){.horus-crown{top:34px;scale:.78;transform-origin:center top}.bonus-chute{top:30px}.temple{padding-top:88px}}
