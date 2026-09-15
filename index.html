@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#110b18">
   <meta name="description" content="Temple of Horus, puzzle de física y match-3 creado por Pilukarts.">
   <title>Temple of Horus — Pilukarts</title>
-  <link rel="stylesheet" href="styles.css?v=2">
-  <script defer src="app.js?v=2"></script>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script defer src="app.js?v=3"></script>
   <!-- pages-build-20260915 -->
 </head>
 <body>
@@ -30,21 +30,20 @@
       <div class="obelisk right"><span>𓂀</span><div id="eyesRight" class="eye-track" aria-label="Ojos de Horus, lado derecho"></div><span>𓋹</span></div>
       <div id="eyesMobile" class="eyes-mobile" aria-label="Contador de Ojos de Horus"></div>
       <div id="bonusChute" class="bonus-chute" aria-hidden="true"><span>CANAL DE HORUS</span><div class="randomizer">𓂀<small>DESTINO</small></div></div>
-      <div id="columnButtons" class="column-buttons" aria-label="Elige una columna"></div>
       <div id="board" class="board" role="grid" aria-label="Tablero del Templo de Horus"></div>
       <div class="temple-door"><span>𓂀</span></div>
     </section>
 
     <section class="next-panel">
-      <div><small>SIGUIENTE RELIQUIA</small><span id="nextBall" class="relic preview"></span></div>
+      <div class="next-row-wrap"><small>SIGUIENTE FILA</small><div id="nextRow" class="next-row" aria-label="Próxima fila de reliquias"></div></div>
       <button id="dropButton">SPIN</button>
     </section>
-    <p id="message" class="message" aria-live="polite">Elige una columna. Une 3 reliquias iguales.</p>
+    <p id="message" class="message" aria-live="polite">Pulsa SPIN: caerá una fila completa de reliquias.</p>
     <section class="rules"><b>PUZZLE, NO APUESTAS</b><span>Sin dinero real · Sin premios monetarios · Estrategia y física</span></section>
   </main>
 
   <div id="intro" class="modal">
-    <div><span class="intro-eye">𓂀</span><small>EL TEMPLO DESPIERTA</small><h2>TEMPLE<br><em>OF HORUS</em></h2><p>Pulsa SPIN y conecta reliquias. Los grupos de 4 o más conceden Ojos; reúne entre 3 y 6 para abrir el Canal de Horus.</p><button id="start">ENTRAR AL TEMPLO</button></div>
+    <div><span class="intro-eye">𓂀</span><small>EL TEMPLO DESPIERTA</small><h2>TEMPLE<br><em>OF HORUS</em></h2><p>Cada SPIN lanza una fila completa. Conecta reliquias. Los grupos de 4 o más conceden Ojos; reúne entre 3 y 6 para abrir el Canal de Horus.</p><button id="start">ENTRAR AL TEMPLO</button></div>
   </div>
 </body>
 </html>
