@@ -20,7 +20,7 @@ function updateHud(){
 }
 function lowest(col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===null)return r;return-1}
 function emptyCount(){return board.reduce((n,row)=>n+row.filter(v=>v===null).length,0)}
-function connected(r,c,type,seen=new Set()){const key=r+","+c;if(r<0||r>=ROWS||c<0||c>=COLS||seen.has(key)||board[r][c]!==type)return seen;seen.add(key);connected(r+1,c,type,seen);connected(r-1,c,type,seen);connected(r,c+1,type,seen);connected(r,c-1,type,seen);return seen}
+function connected(r,c,type,seen=new Set()){const key=r+","+c;if(r<0||r>=ROWS||c<0||c>=COLS||seen.has(key)||board[r][c]!==type)return seen;seen.add(key);for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr||dc)connected(r+dr,c+dc,type,seen);return seen}
 function matchingGroups(){const groups=[],seen=new Set();for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const key=r+","+c;if(board[r][c]===null||seen.has(key))continue;const type=board[r][c],cells=connected(r,c,type);cells.forEach(x=>seen.add(x));if(cells.size>=3)groups.push({type,cells})}return groups}
 function gravity(){for(let c=0;c<COLS;c++){const vals=[];for(let r=ROWS-1;r>=0;r--)if(board[r][c]!==null)vals.push(board[r][c]);for(let r=ROWS-1;r>=0;r--)board[r][c]=vals[ROWS-1-r]??null}}
 function newChosen(){let n=randomType();while(n===chosen)n=randomType();chosen=n}
