@@ -19,3 +19,8 @@
 /* Full-row spin */
 .next-row-wrap{display:grid!important;gap:4px;min-width:0;flex:1}.next-row{display:grid;grid-template-columns:repeat(7,34px);gap:4px}.next-row .relic.preview{width:34px;height:34px;font-size:17px;border-width:2px}.temple{padding-top:30px}.column-buttons{display:none!important}
 @media(max-width:520px){.next-panel{align-items:end}.next-row{grid-template-columns:repeat(7,minmax(22px,1fr));gap:2px}.next-row .relic.preview{width:100%;height:auto;font-size:14px}.temple{padding-top:42px}}
+
+
+/* Independent relic spacing */
+.board{gap:7px;padding:8px}.relic{width:86%}.cell:nth-child(3n+1) .relic:not(.fall):not(.pop){rotate:-3deg}.cell:nth-child(3n+2) .relic:not(.fall):not(.pop){rotate:2deg}.chosen-relic small{color:var(--blue)}.chosen-relic b{max-width:92px;line-height:1.25}
+@media(max-width:520px){.board{gap:4px;padding:5px}.relic{width:88%}}
