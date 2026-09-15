@@ -9,7 +9,7 @@ function relic(type,extra=""){return type===null?"":`<span class="relic ${extra}
 function eyeSlots(container,count){container.innerHTML=Array.from({length:count},(_,i)=>`<span class="horus-eye-slot ${i<eyes?"lit":""}">𓂀</span>`).join("")}
 function render(popSet=new Set(),fallSet=new Set()){
   boardEl.innerHTML="";
-  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement("div");cell.className="cell";cell.setAttribute("role","gridcell");const key=r+","+c;cell.innerHTML=relic(board[r][c],popSet.has(key)?"pop":fallSet.has(key)?"fall":"");boardEl.append(cell)}
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement("div");cell.className="cell";cell.setAttribute("role","gridcell");const key=r+","+c;cell.innerHTML=relic(board[r][c],popSet.has(key)?"pop":fallSet.has(key)?"fall fall-"+c:"");boardEl.append(cell)}
   $("#nextRow").innerHTML=nextRow.map(type=>relic(type,"preview")).join("");
   $("#chosenRelic").outerHTML=`<span id="chosenRelic" class="relic preview" data-type="${chosen}">${TYPES[chosen]}</span>`;
   eyeSlots($("#eyesLeft"),3);eyeSlots($("#eyesRight"),3);eyeSlots($("#eyesMobile"),6);updateHud()
@@ -39,7 +39,7 @@ async function resolve(){
 async function spin(){
   if(busy)return;if(Array.from({length:COLS},(_,c)=>lowest(c)).some(r=>r<0)){gameOver();return}
   busy=true;$("#message").textContent="La fila entra en el templo…";
-  const incoming=[...nextRow];nextRow=makeRow();const order=[0,1,2,3,4,5,6];for(const c of order){const row=lowest(c);board[row][c]=incoming[c];render(new Set(),new Set([row+","+c]));tone(230+c*18,.07,.035);await wait(95)}await wait(300);await resolve();busy=false;checkEnd()
+  const incoming=[...nextRow],falling=new Set();nextRow=makeRow();for(let c=0;c<COLS;c++){const row=lowest(c);board[row][c]=incoming[c];falling.add(row+","+c)}render(new Set(),falling);for(let c=0;c<COLS;c++){setTimeout(()=>tone(230+c*18,.07,.028),c*45)}await wait(900);await resolve();busy=false;checkEnd()
 }
 async function bonusDrop(){
   const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return false;
