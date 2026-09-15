@@ -20,7 +20,7 @@ function updateHud(){
 }
 function lowest(col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===null)return r;return-1}
 function emptyCount(){return board.reduce((n,row)=>n+row.filter(v=>v===null).length,0)}
-function landingColumn(origin){const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return-1;available.sort((a,b)=>(lowest(b)-Math.abs(b-origin)*.4+Math.random()*.18)-(lowest(a)-Math.abs(a-origin)*.4+Math.random()*.18));return available[0]}
+function landingColumn(origin){const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return-1;const scored=available.map(c=>({c,score:Math.random()*2.4+(lowest(c)/ROWS)*.7-Math.abs(c-origin)*.16}));scored.sort((a,b)=>b.score-a.score);return scored[0].c}
 function connected(r,c,type,seen=new Set()){const key=r+","+c;if(r<0||r>=ROWS||c<0||c>=COLS||seen.has(key)||board[r][c]!==type)return seen;seen.add(key);connected(r+1,c,type,seen);connected(r-1,c,type,seen);connected(r,c+1,type,seen);connected(r,c-1,type,seen);return seen}
 function matchingGroups(){const groups=[],seen=new Set();for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const key=r+","+c;if(board[r][c]===null||seen.has(key))continue;const type=board[r][c],cells=connected(r,c,type);cells.forEach(x=>seen.add(x));if(cells.size>=3)groups.push({type,cells})}return groups}
 function gravity(){for(let c=0;c<COLS;c++){const vals=[];for(let r=ROWS-1;r>=0;r--)if(board[r][c]!==null)vals.push(board[r][c]);for(let r=ROWS-1;r>=0;r--)board[r][c]=vals[ROWS-1-r]??null}}
@@ -40,7 +40,7 @@ async function resolve(){
 }
 async function spin(){
   if(busy)return;if(emptyCount()<COLS){gameOver();return}
-  busy=true;$("#message").textContent="Las reliquias buscan los huecos del templo…";
+  busy=true;$("#message").textContent="Cada reliquia busca su propio hueco…";
   const incoming=[...nextRow],falling=new Set();nextRow=makeRow();for(let origin=0;origin<COLS;origin++){const c=landingColumn(origin),row=lowest(c);board[row][c]=incoming[origin];falling.add(row+","+c)}render(new Set(),falling);for(let c=0;c<COLS;c++){setTimeout(()=>tone(230+c*18,.07,.028),c*45)}await wait(900);await resolve();busy=false;checkEnd()
 }
 async function bonusDrop(){
