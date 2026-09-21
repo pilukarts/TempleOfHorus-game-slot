@@ -4,7 +4,7 @@ Prototipo original de Pilukarts: puzzle táctil de física y match-3 ambientado 
 
 ## Cómo jugar
 
-Elige una columna para soltar una reliquia. Los grupos conectados de 3 o más símbolos iguales desaparecen y las piezas restantes caen por gravedad. Cada combinación carga el Ojo de Horus. Al completarlo se abre el Canal del Destino y un selector central reparte una lluvia de reliquias aleatorias.
+Abre el juego desde la presentación de Pilukarts Studios, selecciona Temple of Horus en el mapa y pulsa SPIN. Caen siete reliquias, una por cada carril. Los grupos conectados de tres o más símbolos iguales desaparecen y las piezas restantes caen por gravedad. Los grupos de cuatro o más cargan los Ojos de Horus; al reunirlos se abre el Canal de Horus y caen reliquias adicionales.
 
 ## Identidad
 
