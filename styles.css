@@ -281,3 +281,69 @@ body:before{
   .score-reward.show{animation:score-reward-fade 2s ease both}
   @keyframes score-reward-fade{10%,75%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 }
+
+
+/* Cinematic loading gate */
+.loading-modal{background:radial-gradient(circle at 50% 40%,#56314b,#160b18 47%,#040205 78%)}
+.loading-modal:before,.loading-modal:after{
+  content:"𓂀 𓆣 𓋹 𓇳 𓅃";
+  position:absolute;
+  top:0;bottom:0;
+  width:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  writing-mode:vertical-rl;
+  text-orientation:upright;
+  color:#c9984a33;
+  font:700 29px/1.7 Georgia,serif;
+  letter-spacing:.18em;
+  border-inline:1px solid #c9984a22;
+  background:#08050a66;
+}
+.loading-modal:before{left:0}.loading-modal:after{right:0;transform:scaleX(-1)}
+.loading-card{position:relative;z-index:2;width:min(88vw,480px);text-align:center}
+.loading-card .intro-eye{animation:loading-eye 1.55s ease-in-out infinite alternate}
+.loading-card h2{filter:drop-shadow(0 8px 15px #000)}
+.loading-track{
+  position:relative;
+  height:12px;
+  margin:25px auto 9px;
+  overflow:hidden;
+  border:1px solid #9d6931;
+  border-radius:20px;
+  background:#08050c;
+  box-shadow:inset 0 2px 7px #000,0 0 18px #22d8e822;
+}
+.loading-track i{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#1fb8db,#7cecff 48%,#ffc64b);
+  box-shadow:0 0 16px #45e5ff;
+  transition:width .38s cubic-bezier(.2,.8,.2,1);
+}
+#loadingLabel{
+  display:block;
+  min-height:18px;
+  color:#c8ad89;
+  font-size:10px;
+  letter-spacing:.22em;
+}
+.loading-card #start{margin-top:20px;min-width:190px}
+.loading-modal.is-loading #start{opacity:0;visibility:hidden;transform:scale(.8)}
+.loading-modal.is-loading .intro-eye{animation-duration:.58s}
+.loading-modal.opening{animation:temple-gates-open .72s ease-in forwards}
+@keyframes loading-eye{
+  from{transform:scale(.94);filter:brightness(.82);text-shadow:0 0 18px #22d8e8}
+  to{transform:scale(1.08);filter:brightness(1.22);text-shadow:0 0 42px #22d8e8,0 0 20px #ffc64b}
+}
+@keyframes temple-gates-open{
+  65%{opacity:1;filter:brightness(1.55);transform:scale(1.03)}
+  to{opacity:0;visibility:hidden;filter:brightness(2);transform:scale(1.12)}
+}
+@media(max-width:520px){
+  .loading-modal:before,.loading-modal:after{width:38px;font-size:18px;opacity:.55}
+  .loading-track{width:82%}
+}
