@@ -1,10 +1,26 @@
 const ROWS=9,COLS=7,TYPES=["𓂀","𓆣","𓋹","☀","◆","𓅃"],BONUS_MIN=3,BONUS_MAX=6;
 const $=s=>document.querySelector(s),rand=n=>Math.floor(Math.random()*n),wait=ms=>new Promise(r=>setTimeout(r,ms));
-let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true;
+let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true,audioCtx=null,musicTimer=null,musicStep=0;
 const randomType=()=>rand(Math.min(TYPES.length,4+Math.floor(level/3))),makeRow=()=>Array.from({length:COLS},randomType);
 let nextRow=makeRow(),chosen=randomType(),boardEl=$("#board");
 
-function tone(freq=440,d=.08,volume=.05){if(!soundOn)return;const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value=freq;g.gain.setValueAtTime(volume,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+d)}
+function audio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;audioCtx=new C()}if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx}
+function note(freq,d=.3,volume=.015,type="triangle",delay=0){if(!soundOn)return;const c=audio(),at=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,at);g.gain.setValueAtTime(.001,at);g.gain.exponentialRampToValueAtTime(volume,at+.025);g.gain.exponentialRampToValueAtTime(.001,at+d);o.connect(g).connect(c.destination);o.start(at);o.stop(at+d+.03)}
+function drum(volume=.025){if(!soundOn)return;const c=audio(),at=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.setValueAtTime(95,at);o.frequency.exponentialRampToValueAtTime(42,at+.16);g.gain.setValueAtTime(volume,at);g.gain.exponentialRampToValueAtTime(.001,at+.18);o.connect(g).connect(c.destination);o.start(at);o.stop(at+.2)}
+function tone(freq=440,d=.08,volume=.05){note(freq,d,volume,"sine")}
+const MUSIC_SCALE=[146.83,155.56,185,196,220,233.08,277.18],MUSIC_PATTERN=[0,1,2,1,4,3,2,1,0,2,5,4,3,2,1,6];
+function musicPulse(){
+  if(!soundOn){musicTimer=null;return}
+  const intensity=inBonus?2:eyes>=3?1:0,index=MUSIC_PATTERN[musicStep%MUSIC_PATTERN.length],freq=MUSIC_SCALE[index];
+  if(musicStep%2===0)note(freq,intensity===2?.34:.5,intensity===2?.018:.011,"triangle");
+  if(musicStep%8===0)note(MUSIC_SCALE[0]/2,1.6,.008,"sine");
+  if(intensity>0&&musicStep%2===0)drum(intensity===2?.035:.018);
+  if(intensity===2&&musicStep%4===2)note(freq*2,.22,.012,"square");
+  musicStep++;musicTimer=setTimeout(musicPulse,intensity===2?210:intensity===1?285:390)
+}
+function startMusic(){if(musicTimer||!soundOn)return;audio();musicPulse()}
+function stopMusic(){clearTimeout(musicTimer);musicTimer=null}
+
 function relic(type,extra=""){return type===null?"":`<span class="relic ${extra}" data-type="${type}">${TYPES[type]}</span>`}
 function eyeSlots(container,count){container.innerHTML=Array.from({length:count},(_,i)=>`<span class="horus-eye-slot ${i<eyes?"lit":""}">𓂀</span>`).join("")}
 function render(popSet=new Set(),fallSet=new Set()){
@@ -71,4 +87,4 @@ async function bonusMode(power){
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
 function checkEnd(){if(emptyCount()<COLS)gameOver()}
 function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;displayedScore=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;$("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()}
-$("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×"};$("#start").onclick=()=>{$("#intro").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()};render();
+$("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×";e.currentTarget.setAttribute("aria-label",soundOn?"Silenciar música y sonido":"Activar música y sonido");if(soundOn)startMusic();else stopMusic()};$("#start").onclick=()=>{$("#intro").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";startMusic();render()};document.addEventListener("visibilitychange",()=>{if(document.hidden)stopMusic();else if(soundOn&&!$("#intro").classList.contains("hidden"))startMusic()});render();
