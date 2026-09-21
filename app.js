@@ -106,8 +106,8 @@ function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));scor
 $("#intro").classList.remove("hidden","opening","is-loading");$("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×";e.currentTarget.setAttribute("aria-label",soundOn?"Silenciar música y sonido":"Activar música y sonido");if(soundOn)startMusic();else stopMusic()};$("#start").onclick=async e=>{
   const intro=$("#intro"),bar=$("#loadingBar"),label=$("#loadingLabel");
   e.currentTarget.disabled=true;intro.classList.add("is-loading");startMusic();
-  const stages=[[18,"LOADING RELICS"],[43,"AWAKENING THE EYE"],[69,"LIGHTING THE TORCHES"],[88,"CALLING HORUS"],[100,"OPENING THE GATES"]];
+  const stages=[[18,"AWAKENING WORLDS"],[43,"LOADING ADVENTURES"],[69,"LIGHTING THE TORCHES"],[88,"OPENING THE MAP"],[100,"CHOOSE YOUR WORLD"]];
   for(const [progress,text] of stages){bar.style.width=progress+"%";label.textContent=text;tone(300+progress*3,.08,.018);await wait(progress===100?500:330)}
   intro.classList.add("opening");await wait(720);intro.classList.add("hidden");
-  $("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()
-};document.addEventListener("visibilitychange",()=>{if(document.hidden)stopMusic();else if(soundOn&&!$("#intro").classList.contains("hidden"))startMusic()});render();
+  $("#worldMap").classList.remove("hidden");
+};$("#enterHorus").onclick=()=>{$("#worldMap").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()};document.addEventListener("visibilitychange",()=>{if(document.hidden)stopMusic();else if(soundOn&&!$("#intro").classList.contains("hidden"))startMusic()});render();
