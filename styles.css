@@ -347,3 +347,47 @@ body:before{
   .loading-modal:before,.loading-modal:after{width:38px;font-size:18px;opacity:.55}
   .loading-track{width:82%}
 }
+
+/* Each relic arrives independently, with its own fall and landing. */
+.board .relic.fall{
+  animation:individual-drop var(--fall-time,680ms) cubic-bezier(.22,.72,.34,1) both;
+  will-change:transform;
+}
+@keyframes individual-drop{
+  0%{transform:translate(var(--drift,0px),calc(-1 * var(--fall-distance,220px))) rotate(var(--turn,0deg)) scale(.88);opacity:.7}
+  72%{transform:translate(calc(var(--drift,0px) * .25),9px) rotate(5deg) scale(1.04);opacity:1}
+  88%{transform:translate(0,-4px) rotate(-2deg) scale(.98)}
+  100%{transform:translate(0,0) rotate(0) scale(1);opacity:1}
+}
+.loading-modal:not(.hidden){opacity:1;visibility:visible}
+@media(prefers-reduced-motion:reduce){
+  .board .relic.fall{animation:none;will-change:auto}
+}
+
+/* Pilukarts world map between the opening and the game. */
+.world-map{
+  background:
+    radial-gradient(circle at 50% 20%,#84522944,transparent 45%),
+    repeating-linear-gradient(90deg,#160d15 0 70px,#32201e 71px 73px,#100910 74px 145px);
+}
+.world-map .map-card{width:min(92vw,500px);padding:22px;position:relative;z-index:2}
+.map-card h2{color:#ffe0a0;font-size:clamp(35px,10vw,58px);line-height:1}
+.map-card p{color:#c5b7a9}
+.map-world{
+  width:100%;min-height:104px;display:flex;align-items:center;gap:16px;
+  padding:14px 18px;margin-top:25px;border:2px solid #d9a04c;border-radius:24px;
+  background:linear-gradient(135deg,#6b4025,#231422 70%);
+  color:#fff4d8;text-align:left;box-shadow:inset 0 0 20px #ffc86e22,0 10px 26px #0008;
+  cursor:pointer;
+}
+.map-world-icon{
+  flex:none;display:grid;place-items:center;width:63px;height:63px;border-radius:50%;
+  background:radial-gradient(circle,#39d3e6,#193862 56%,#0b1024);
+  color:#ffe7a3;font-size:38px;box-shadow:0 0 17px #36e6fa77
+}
+.map-world strong{font-size:clamp(15px,4vw,21px);letter-spacing:.05em}
+.map-world small{display:block;margin-top:6px;color:#8fe6f2;letter-spacing:.16em}
+.map-world>span:last-child{margin-left:auto;color:#f5ca7b;font-size:24px}
+.map-world:hover,.map-world:focus-visible{outline:2px solid #a8f5ff;filter:brightness(1.15)}
+.map-hint{margin-top:26px;font-size:13px}
+@media(max-width:520px){.map-world{gap:10px;padding:12px}.map-world-icon{width:54px;height:54px}}

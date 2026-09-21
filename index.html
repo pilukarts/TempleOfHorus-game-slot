@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#110b18">
   <meta name="description" content="Temple of Horus, puzzle de física y match-3 creado por Pilukarts.">
   <title>Temple of Horus — Pilukarts</title>
-  <link rel="stylesheet" href="styles.css?v=11">
-  <script defer src="app.js?v=13"></script>
+  <link rel="stylesheet" href="styles.css?v=13">
+  <script defer src="app.js?v=15"></script>
   <!-- pages-build-20260915 -->
 </head>
 <body>
@@ -20,7 +20,7 @@
   </div>
   <main class="game-shell">
     <header>
-      <div class="brand"><span class="eye">𓂀</span><div><small>PILUKARTS PRESENTS</small><h1>TEMPLE <em>OF HORUS</em></h1></div></div>
+      <div class="brand"><span class="eye">𓂀</span><div><small>PILUKARTS STUDIOS</small><h1>TEMPLE <em>OF HORUS</em></h1></div></div>
       <button id="sound" class="icon" aria-label="Sonido">♫</button>
     </header>
 
@@ -53,13 +53,26 @@
 
   <div id="intro" class="modal loading-modal">
     <div class="loading-card">
-      <span class="intro-eye">𓂀</span>
-      <small id="loaderTitle">THE TEMPLE AWAKENS…</small>
-      <h2>TEMPLE<br><em>OF HORUS</em></h2>
+      <span class="intro-eye">✦</span>
+      <small id="loaderTitle">PILUKARTS STUDIOS</small>
+      <h2>PILUKARTS<br><em>STUDIOS</em></h2>
       <div class="loading-track" aria-hidden="true"><i id="loadingBar"></i></div>
       <b id="loadingLabel">READY</b>
-      <button id="start">TAP TO AWAKEN</button>
+      <button id="start">TAP TO BEGIN</button>
     </div>
   </div>
+  <section id="worldMap" class="modal world-map hidden" aria-label="World map">
+    <div class="map-card">
+      <small>PILUKARTS STUDIOS</small>
+      <h2>WORLD MAP</h2>
+      <p>Choose your adventure</p>
+      <button id="enterHorus" class="map-world">
+        <span class="map-world-icon" aria-hidden="true">𓂀</span>
+        <span><strong>TEMPLE OF HORUS</strong><small>LEVEL 1 · PLAY</small></span>
+        <span aria-hidden="true">➜</span>
+      </button>
+      <p class="map-hint">More worlds and levels coming soon</p>
+    </div>
+  </section>
 </body>
 </html>

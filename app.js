@@ -22,6 +22,18 @@ function startMusic(){if(musicTimer||!soundOn)return;audio();musicPulse()}
 function stopMusic(){clearTimeout(musicTimer);musicTimer=null}
 
 function relic(type,extra=""){return type===null?"":`<span class="relic ${extra}" data-type="${type}">${TYPES[type]}</span>`}
+function dropRelic(row,col,type,bonus=false){
+  board[row][col]=type;
+  const cell=boardEl.children[row*COLS+col];
+  cell.innerHTML=relic(type,"fall");
+  const piece=cell.firstElementChild;
+  const travel=(row+1)*cell.getBoundingClientRect().height;
+  piece.style.setProperty("--fall-distance",Math.max(90,travel+65)+"px");
+  piece.style.setProperty("--drift",((Math.random()-.5)*(bonus?24:15)).toFixed(1)+"px");
+  piece.style.setProperty("--turn",((Math.random()-.5)*75).toFixed(1)+"deg");
+  piece.style.setProperty("--fall-time",(520+row*32+rand(240))+"ms");
+  tone(230+col*28,.07,.025)
+}
 function eyeSlots(container,count){container.innerHTML=Array.from({length:count},(_,i)=>`<span class="horus-eye-slot ${i<eyes?"lit":""}">𓂀</span>`).join("")}
 function render(popSet=new Set(),fallSet=new Set()){
   boardEl.innerHTML="";
@@ -73,11 +85,15 @@ async function resolve(){
 async function spin(){
   if(busy)return;if(emptyCount()<COLS){gameOver();return}
   busy=true;const scoreBefore=score;$("#message").textContent="Siete canicas, siete carriles: cada una busca su hueco…";
-  const incoming=[...nextRow],falling=new Set();nextRow=makeRow();for(let c=0;c<COLS;c++){const row=lowest(c);board[row][c]=incoming[c];falling.add(row+","+c)}render(new Set(),falling);for(let c=0;c<COLS;c++){setTimeout(()=>tone(230+c*18,.07,.028),c*45)}await wait(900);await resolve();await showScoreReward(score-scoreBefore);busy=false;checkEnd()
+  const incoming=[...nextRow];nextRow=makeRow();render();
+  const columns=Array.from({length:COLS},(_,col)=>col);
+  for(let i=columns.length-1;i>0;i--){const j=rand(i+1);[columns[i],columns[j]]=[columns[j],columns[i]]}
+  for(const col of columns){const row=lowest(col);dropRelic(row,col,incoming[col]);await wait(95+rand(85))}
+  await wait(1080);await resolve();await showScoreReward(score-scoreBefore);busy=false;checkEnd()
 }
 async function bonusDrop(){
   const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return false;
-  const col=available[rand(available.length)],row=lowest(col);board[row][col]=randomType();render(new Set(),new Set([row+","+col]));tone(330,.08);await wait(250);await resolve();return true
+  const col=available[rand(available.length)],row=lowest(col);dropRelic(row,col,randomType(),true);await wait(1080);await resolve();return true
 }
 async function bonusMode(power){
   inBonus=true;eyes=0;$("#bonusChute").classList.add("active");$(".temple").classList.add("bonus-active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
@@ -87,11 +103,11 @@ async function bonusMode(power){
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
 function checkEnd(){if(emptyCount()<COLS)gameOver()}
 function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;displayedScore=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;$("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()}
-$("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×";e.currentTarget.setAttribute("aria-label",soundOn?"Silenciar música y sonido":"Activar música y sonido");if(soundOn)startMusic();else stopMusic()};$("#start").onclick=async e=>{
+$("#intro").classList.remove("hidden","opening","is-loading");$("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×";e.currentTarget.setAttribute("aria-label",soundOn?"Silenciar música y sonido":"Activar música y sonido");if(soundOn)startMusic();else stopMusic()};$("#start").onclick=async e=>{
   const intro=$("#intro"),bar=$("#loadingBar"),label=$("#loadingLabel");
   e.currentTarget.disabled=true;intro.classList.add("is-loading");startMusic();
-  const stages=[[18,"LOADING RELICS"],[43,"AWAKENING THE EYE"],[69,"LIGHTING THE TORCHES"],[88,"CALLING HORUS"],[100,"OPENING THE GATES"]];
+  const stages=[[18,"AWAKENING WORLDS"],[43,"LOADING ADVENTURES"],[69,"LIGHTING THE TORCHES"],[88,"OPENING THE MAP"],[100,"CHOOSE YOUR WORLD"]];
   for(const [progress,text] of stages){bar.style.width=progress+"%";label.textContent=text;tone(300+progress*3,.08,.018);await wait(progress===100?500:330)}
   intro.classList.add("opening");await wait(720);intro.classList.add("hidden");
-  $("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()
-};document.addEventListener("visibilitychange",()=>{if(document.hidden)stopMusic();else if(soundOn&&!$("#intro").classList.contains("hidden"))startMusic()});render();
+  $("#worldMap").classList.remove("hidden");
+};$("#enterHorus").onclick=()=>{$("#worldMap").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()};document.addEventListener("visibilitychange",()=>{if(document.hidden)stopMusic();else if(soundOn&&!$("#intro").classList.contains("hidden"))startMusic()});render();
