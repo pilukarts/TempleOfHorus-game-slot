@@ -15,6 +15,6 @@ Elige una columna para soltar una reliquia. Los grupos conectados de 3 o más s�
 
 ## Publicación
 
-Activa GitHub Pages con la rama `main` y la carpeta raíz para jugarlo desde el navegador.
+GitHub Pages publica la rama `main` desde la carpeta raíz: [jugar Temple of Horus](https://pilukarts.github.io/TempleOfHorus-game-slot/). Para comprobar una actualización, consulta la ejecución más reciente de `pages build and deployment` en la pestaña Actions.
 
 © 2026 Pilukarts. Temple of Horus es un proyecto creativo original de Pilukarts.
