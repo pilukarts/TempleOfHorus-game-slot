@@ -1,6 +1,6 @@
 const ROWS=9,COLS=7,TYPES=["𓂀","𓆣","𓋹","☀","◆","𓅃"],BONUS_MIN=3,BONUS_MAX=6;
 const $=s=>document.querySelector(s),rand=n=>Math.floor(Math.random()*n),wait=ms=>new Promise(r=>setTimeout(r,ms));
-let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true,audioCtx=null,musicTimer=null,musicStep=0,musicStarted=false;
+let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true,audioCtx=null,musicTimer=null,musicStep=0,musicStarted=false,bonusPower=0;
 const randomType=()=>rand(Math.min(TYPES.length,4+Math.floor(level/3))),makeRow=()=>Array.from({length:COLS},randomType);
 let nextRow=makeRow(),chosen=randomType(),boardEl=$("#board");
 
@@ -11,12 +11,13 @@ function tone(freq=440,d=.08,volume=.05){note(freq,d,volume,"sine")}
 const MUSIC_SCALE=[146.83,155.56,185,196,220,233.08,277.18],MUSIC_PATTERN=[0,1,2,1,4,3,2,1,0,2,5,4,3,2,1,6];
 function musicPulse(){
   if(!soundOn){musicTimer=null;return}
-  const intensity=inBonus?2:eyes>=3?1:0,index=MUSIC_PATTERN[musicStep%MUSIC_PATTERN.length],freq=MUSIC_SCALE[index];
-  if(musicStep%2===0)note(freq,intensity===2?.34:.5,intensity===2?.055:.042,"triangle");
+  const intensity=inBonus?(bonusPower===BONUS_MAX?3:2):eyes>=3?1:0,index=MUSIC_PATTERN[musicStep%MUSIC_PATTERN.length],freq=MUSIC_SCALE[index];
+  if(musicStep%2===0)note(freq,intensity>=2?.38:.5,intensity===3?.085:intensity===2?.065:.042,"triangle");
   if(musicStep%8===0)note(MUSIC_SCALE[0]/2,1.6,.02,"sine");
-  if(intensity>0&&musicStep%2===0)drum(intensity===2?.07:.035);
-  if(intensity===2&&musicStep%4===2)note(freq*2,.22,.022,"square");
-  musicStep++;musicTimer=setTimeout(musicPulse,intensity===2?210:intensity===1?285:390)
+  if(intensity>0&&musicStep%2===0)drum(intensity===3?.105:intensity===2?.075:.035);
+  if(intensity>=2&&musicStep%4===2)note(freq*2,.22,intensity===3?.038:.024,"square");
+  if(intensity===3&&musicStep%4===0){note(freq*1.5,.32,.034,"sawtooth");drum(.065)}
+  musicStep++;musicTimer=setTimeout(musicPulse,intensity===3?185:intensity===2?210:intensity===1?285:390)
 }
 function startMusic(){musicStarted=true;if(musicTimer||!soundOn||document.hidden)return;audio();musicPulse()}
 function stopMusic(){clearTimeout(musicTimer);musicTimer=null}
@@ -96,9 +97,9 @@ async function bonusDrop(){
   const col=available[rand(available.length)],row=lowest(col);dropRelic(row,col,randomType(),true);await wait(1080);await resolve();return true
 }
 async function bonusMode(power){
-  inBonus=true;eyes=0;$("#bonusChute").classList.add("active");$(".temple").classList.add("bonus-active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
+  inBonus=true;bonusPower=power;eyes=0;$("#bonusChute").classList.add("active");$(".temple").classList.add("bonus-active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
   for(let i=0;i<power*2;i++){if(!await bonusDrop())break;await wait(140)}
-  $("#bonusChute").classList.remove("active");$(".temple").classList.remove("bonus-active");score+=power*500*level;inBonus=false;render();$("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
+  $("#bonusChute").classList.remove("active");$(".temple").classList.remove("bonus-active");score+=power*500*level;inBonus=false;bonusPower=0;render();$("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
 }
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
 function checkEnd(){if(emptyCount()<COLS)gameOver()}
