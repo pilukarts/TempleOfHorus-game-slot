@@ -21,7 +21,7 @@ function updateHud(){
 async function showScoreReward(amount){
   if(amount<=0){displayedScore=score;updateHud();return}
   const reward=$("#scoreReward"),start=displayedScore,target=score;
-  reward.innerHTML=`<small>HAS GANADO</small><strong>+${amount.toLocaleString("es")} PUNTOS</strong>`;
+  reward.innerHTML=`<strong>${amount.toLocaleString("es")}</strong>`;
   reward.classList.remove("show");void reward.offsetWidth;reward.classList.add("show");tone(880,.18,.07);
   await wait(1450);
   const duration=550,began=performance.now();
