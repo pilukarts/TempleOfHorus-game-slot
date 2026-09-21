@@ -1,6 +1,6 @@
 const ROWS=9,COLS=7,TYPES=["𓂀","𓆣","𓋹","☀","◆","𓅃"],BONUS_MIN=3,BONUS_MAX=6;
 const $=s=>document.querySelector(s),rand=n=>Math.floor(Math.random()*n),wait=ms=>new Promise(r=>setTimeout(r,ms));
-let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true;
+let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true;
 const randomType=()=>rand(Math.min(TYPES.length,4+Math.floor(level/3))),makeRow=()=>Array.from({length:COLS},randomType);
 let nextRow=makeRow(),chosen=randomType(),boardEl=$("#board");
 
@@ -15,8 +15,25 @@ function render(popSet=new Set(),fallSet=new Set()){
   eyeSlots($("#eyesLeft"),3);eyeSlots($("#eyesRight"),3);eyeSlots($("#eyesMobile"),6);updateHud()
 }
 function updateHud(){
-  $("#score").textContent=score.toLocaleString("es");$("#level").textContent=level;$("#combos").textContent=combos;
+  $("#score").textContent=displayedScore.toLocaleString("es");$("#level").textContent=level;$("#combos").textContent=combos;
   $(".temple").classList.toggle("eye-tension",eyes>0);$(".temple").classList.toggle("bonus-max",eyes===BONUS_MAX)
+}
+async function showScoreReward(amount){
+  if(amount<=0){displayedScore=score;updateHud();return}
+  const reward=$("#scoreReward"),start=displayedScore,target=score;
+  reward.innerHTML=`<small>HAS GANADO</small><strong>+${amount.toLocaleString("es")} PUNTOS</strong>`;
+  reward.classList.remove("show");void reward.offsetWidth;reward.classList.add("show");tone(880,.18,.07);
+  await wait(1450);
+  const duration=550,began=performance.now();
+  await new Promise(done=>{
+    function tick(now){
+      const t=Math.min(1,(now-began)/duration),eased=1-Math.pow(1-t,3);
+      displayedScore=Math.round(start+(target-start)*eased);updateHud();
+      if(t<1)requestAnimationFrame(tick);else done()
+    }
+    requestAnimationFrame(tick)
+  });
+  displayedScore=score;updateHud();await wait(80);reward.classList.remove("show")
 }
 function lowest(col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===null)return r;return-1}
 function emptyCount(){return board.reduce((n,row)=>n+row.filter(v=>v===null).length,0)}
@@ -39,8 +56,8 @@ async function resolve(){
 }
 async function spin(){
   if(busy)return;if(emptyCount()<COLS){gameOver();return}
-  busy=true;$("#message").textContent="Siete canicas, siete carriles: cada una busca su hueco…";
-  const incoming=[...nextRow],falling=new Set();nextRow=makeRow();for(let c=0;c<COLS;c++){const row=lowest(c);board[row][c]=incoming[c];falling.add(row+","+c)}render(new Set(),falling);for(let c=0;c<COLS;c++){setTimeout(()=>tone(230+c*18,.07,.028),c*45)}await wait(900);await resolve();busy=false;checkEnd()
+  busy=true;const scoreBefore=score;$("#message").textContent="Siete canicas, siete carriles: cada una busca su hueco…";
+  const incoming=[...nextRow],falling=new Set();nextRow=makeRow();for(let c=0;c<COLS;c++){const row=lowest(c);board[row][c]=incoming[c];falling.add(row+","+c)}render(new Set(),falling);for(let c=0;c<COLS;c++){setTimeout(()=>tone(230+c*18,.07,.028),c*45)}await wait(900);await resolve();await showScoreReward(score-scoreBefore);busy=false;checkEnd()
 }
 async function bonusDrop(){
   const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return false;
@@ -53,5 +70,5 @@ async function bonusMode(power){
 }
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
 function checkEnd(){if(emptyCount()<COLS)gameOver()}
-function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;$("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()}
+function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;displayedScore=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;$("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()}
 $("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×"};$("#start").onclick=()=>{$("#intro").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()};render();
