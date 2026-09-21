@@ -1,6 +1,6 @@
-const ROWS=9,COLS=7,TYPES=["𓂀","𓆣","𓋹","☀","◆","𓅃"],BONUS_MIN=3,BONUS_MAX=6;
+const COLS=7,TYPES=["𓂀","𓆣","𓋹","☀","◆","𓅃"],BONUS_MIN=3,BONUS_MAX=6;
 const $=s=>document.querySelector(s),rand=n=>Math.floor(Math.random()*n),wait=ms=>new Promise(r=>setTimeout(r,ms));
-let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true,audioCtx=null,musicTimer=null,musicStep=0,musicStarted=false,bonusPower=0;
+let score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true,audioCtx=null,musicTimer=null,musicStep=0,musicStarted=false,bonusPower=0;
 const randomType=()=>rand(Math.min(TYPES.length,4+Math.floor(level/3))),makeRow=()=>Array.from({length:COLS},randomType);
 let nextRow=makeRow(),chosen=randomType(),boardEl=$("#board");
 
@@ -22,23 +22,67 @@ function musicPulse(){
 function startMusic(){musicStarted=true;if(musicTimer||!soundOn||document.hidden)return;audio();musicPulse()}
 function stopMusic(){clearTimeout(musicTimer);musicTimer=null}
 
-function relic(type,extra=""){return type===null?"":`<span class="relic ${extra}" data-type="${type}">${TYPES[type]}</span>`}
-function dropRelic(row,col,type,bonus=false){
-  board[row][col]=type;
-  const cell=boardEl.children[row*COLS+col];
-  cell.innerHTML=relic(type,"fall");
-  const piece=cell.firstElementChild;
-  const travel=(row+1)*cell.getBoundingClientRect().height;
-  piece.style.setProperty("--fall-distance",Math.max(90,travel+65)+"px");
-  piece.style.setProperty("--drift",((Math.random()-.5)*(bonus?24:15)).toFixed(1)+"px");
-  piece.style.setProperty("--turn",((Math.random()-.5)*75).toFixed(1)+"deg");
-  piece.style.setProperty("--fall-time",(520+row*32+rand(240))+"ms");
-  tone(230+col*28,.07,.025)
+const MAX_BALLS=63;
+let balls=[],nextBallId=0,worldWidth=0,worldHeight=0,ballRadius=0,lastFrame=0;
+
+function measureBoard(){
+  const width=boardEl.clientWidth,height=boardEl.clientHeight;
+  if(!width||!height)return;
+  if(worldWidth){
+    for(const ball of balls){ball.x*=width/worldWidth;ball.y*=height/worldHeight;ball.vx*=width/worldWidth;ball.vy*=height/worldHeight}
+  }
+  worldWidth=width;worldHeight=height;ballRadius=Math.min((width-12)/14.5,(height-12)/18.5);
+  for(const ball of balls){ball.el.style.setProperty("--ball-size",`${ballRadius*2}px`);positionBall(ball)}
 }
+function positionBall(ball){
+  ball.el.style.transform=`translate3d(${ball.x-ballRadius}px,${ball.y-ballRadius}px,0) rotate(${ball.angle}deg)`
+}
+function physicsStep(dt){
+  const active=balls.filter(ball=>!ball.removing),radius=ballRadius;
+  for(const ball of active){
+    ball.vy=Math.min(ball.vy+1350*dt,1100);
+    ball.vx*=.997;ball.vy*=.998;
+    ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
+    ball.angle+=ball.vx*dt*.22;
+    if(ball.x<radius){ball.x=radius;ball.vx=Math.abs(ball.vx)*.22}
+    if(ball.x>worldWidth-radius){ball.x=worldWidth-radius;ball.vx=-Math.abs(ball.vx)*.22}
+    if(ball.y>worldHeight-radius){ball.y=worldHeight-radius;ball.vy=-Math.abs(ball.vy)*.18;ball.vx*=.93}
+  }
+  for(let i=0;i<active.length;i++)for(let j=i+1;j<active.length;j++){
+    const a=active[i],b=active[j],dx=b.x-a.x,dy=b.y-a.y,dist2=dx*dx+dy*dy,min=radius*2;
+    if(dist2>=min*min)continue;
+    const dist=Math.max(Math.sqrt(dist2),.001),nx=dx/dist,ny=dy/dist,overlap=(min-dist)*.5;
+    a.x-=nx*overlap;b.x+=nx*overlap;a.y-=ny*overlap;b.y+=ny*overlap;
+    const relative=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
+    if(relative<0){const impulse=-(1.18)*relative*.5;a.vx-=impulse*nx;a.vy-=impulse*ny;b.vx+=impulse*nx;b.vy+=impulse*ny}
+  }
+  for(const ball of active){
+    ball.x=Math.max(radius,Math.min(worldWidth-radius,ball.x));
+    ball.y=Math.min(worldHeight-radius,ball.y);
+  }
+}
+function physicsFrame(now){
+  if(!lastFrame)lastFrame=now;
+  const elapsed=Math.min((now-lastFrame)/1000,.04);lastFrame=now;
+  if(!document.hidden&&worldWidth&&balls.length){
+    physicsStep(elapsed/2);physicsStep(elapsed/2);
+    for(const ball of balls)if(!ball.removing)positionBall(ball)
+  }
+  requestAnimationFrame(physicsFrame)
+}
+function spawnBall(type,x){
+  if(!worldWidth)measureBoard();
+  const el=document.createElement("div");el.className="physics-ball";
+  el.style.setProperty("--ball-size",`${ballRadius*2}px`);
+  el.innerHTML=relic(type);
+  const ball={id:++nextBallId,type,x:Math.max(ballRadius,Math.min(worldWidth-ballRadius,x)),y:-ballRadius*(1+Math.random()*.5),vx:(Math.random()-.5)*125,vy:45+Math.random()*70,angle:(Math.random()-.5)*35,el,removing:false};
+  boardEl.append(el);balls.push(ball);positionBall(ball);
+  tone(230+type*32,.07,.025);
+  return ball
+}
+function relic(type,extra=""){return type===null?"":`<span class="relic ${extra}" data-type="${type}">${TYPES[type]}</span>`}
 function eyeSlots(container,count){container.innerHTML=Array.from({length:count},(_,i)=>`<span class="horus-eye-slot ${i<eyes?"lit":""}">𓂀</span>`).join("")}
-function render(popSet=new Set(),fallSet=new Set()){
-  boardEl.innerHTML="";
-  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement("div");cell.className="cell";cell.setAttribute("role","gridcell");const key=r+","+c;cell.innerHTML=relic(board[r][c],popSet.has(key)?"pop":fallSet.has(key)?"fall fall-"+c:"");boardEl.append(cell)}
+function render(){
   $("#nextRow").innerHTML=nextRow.map(type=>relic(type,"preview")).join("");
   $("#chosenRelic").outerHTML=`<span id="chosenRelic" class="relic preview" data-type="${chosen}">${TYPES[chosen]}</span>`;
   eyeSlots($("#eyesLeft"),3);eyeSlots($("#eyesRight"),3);eyeSlots($("#eyesMobile"),6);updateHud()
@@ -64,37 +108,78 @@ async function showScoreReward(amount){
   });
   displayedScore=score;updateHud();await wait(80);reward.classList.remove("show")
 }
-function lowest(col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===null)return r;return-1}
-function emptyCount(){return board.reduce((n,row)=>n+row.filter(v=>v===null).length,0)}
-function connected(r,c,type,seen=new Set()){const key=r+","+c;if(r<0||r>=ROWS||c<0||c>=COLS||seen.has(key)||board[r][c]!==type)return seen;seen.add(key);for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr||dc)connected(r+dr,c+dc,type,seen);return seen}
-function matchingGroups(){const groups=[],seen=new Set();for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const key=r+","+c;if(board[r][c]===null||seen.has(key))continue;const type=board[r][c],cells=connected(r,c,type);cells.forEach(x=>seen.add(x));if(cells.size>=3)groups.push({type,cells})}return groups}
-function gravity(){const vals=[];for(let r=ROWS-1;r>=0;r--)for(let c=0;c<COLS;c++)if(board[r][c]!==null)vals.push(board[r][c]);board=Array.from({length:ROWS},()=>Array(COLS).fill(null));let i=0,row=ROWS-1;while(vals.length-i>=COLS&&row>=0){for(let c=0;c<COLS;c++)board[row][c]=vals[i++];row--}const remaining=vals.length-i;if(remaining>0&&row>=0){const start=Math.floor((COLS-remaining)/2);for(let n=0;n<remaining;n++)board[row][start+n]=vals[i++]}}
+async function settle(maxMs=1700){
+  const start=performance.now();let quiet=0;
+  while(performance.now()-start<maxMs){
+    await wait(100);
+    const moving=balls.some(b=>!b.removing&&(b.y<ballRadius||Math.abs(b.vy)>36||Math.abs(b.vx)>32));
+    quiet=moving?0:quiet+100;
+    if(quiet>=300)return
+  }
+}
+function matchingGroups(){
+  const groups=[],seen=new Set(),threshold=ballRadius*2+3;
+  for(const first of balls){
+    if(first.removing||seen.has(first.id))continue;
+    const group=[],stack=[first];seen.add(first.id);
+    while(stack.length){
+      const a=stack.pop();group.push(a);
+      for(const b of balls){
+        if(b.removing||seen.has(b.id)||b.type!==a.type)continue;
+        const dx=b.x-a.x,dy=b.y-a.y;
+        if(dx*dx+dy*dy>threshold*threshold)continue;
+        seen.add(b.id);stack.push(b)
+      }
+    }
+    if(group.length>=3)groups.push({type:first.type,items:group})
+  }
+  return groups
+}
+async function removeBalls(items){
+  for(const ball of items){ball.removing=true;ball.el.classList.add("pop")}
+  await wait(380);
+  const ids=new Set(items.map(ball=>ball.id));
+  for(const ball of items)ball.el.remove();
+  balls=balls.filter(ball=>!ids.has(ball.id))
+}
 function newChosen(){let n=randomType();while(n===chosen)n=randomType();chosen=n}
 async function resolve(){
   let chain=0;
   while(true){
+    await settle(1150);
     const groups=matchingGroups();if(!groups.length)break;chain++;
-    const popSet=new Set();groups.forEach(g=>g.cells.forEach(x=>popSet.add(x)));render(popSet);tone(520+chain*90,.14);await wait(380);
+    tone(520+chain*90,.14);
     let earnedEyes=0,targetHit=false;
-    groups.forEach(g=>{const size=g.cells.size,base=size*100*chain*level;score+=base;if(g.type===chosen){score+=base;targetHit=true}if(size>=4)earnedEyes+=Math.min(3,size-3);g.cells.forEach(key=>{const [r,c]=key.split(",").map(Number);board[r][c]=null})});
+    const matched=groups.flatMap(g=>g.items);
+    groups.forEach(g=>{
+      const size=g.items.length,base=size*100*chain*level;
+      score+=base;if(g.type===chosen){score+=base;targetHit=true}
+      if(size>=4)earnedEyes+=Math.min(3,size-3)
+    });
+    await removeBalls(matched);
     if(earnedEyes){eyes=Math.min(BONUS_MAX,eyes+earnedEyes);$("#message").textContent=`𓂀 ¡${earnedEyes} Ojo${earnedEyes>1?"s":""} despierta${earnedEyes>1?"n":""}!`;tone(640+eyes*55,.28,.07)}
     if(targetHit){$("#message").textContent="¡Reliquia Elegida! Puntuación duplicada.";newChosen()}
-    combos+=groups.length;gravity();render();await wait(250)
+    combos+=groups.length;render()
   }
   level=1+Math.floor(score/5000);render();if(eyes>=BONUS_MIN&&!inBonus)await bonusMode(eyes)
 }
+function availableSpace(count){return balls.length+count<=MAX_BALLS}
 async function spin(){
-  if(busy)return;if(emptyCount()<COLS){gameOver();return}
-  busy=true;const scoreBefore=score;$("#message").textContent="Siete canicas, siete carriles: cada una busca su hueco…";
+  if(busy)return;if(!availableSpace(COLS)){gameOver();return}
+  busy=true;const scoreBefore=score;$("#message").textContent="Siete reliquias libres caen al templo…";
   const incoming=[...nextRow];nextRow=makeRow();render();
-  const columns=Array.from({length:COLS},(_,col)=>col);
-  for(let i=columns.length-1;i>0;i--){const j=rand(i+1);[columns[i],columns[j]]=[columns[j],columns[i]]}
-  for(const col of columns){const row=lowest(col);dropRelic(row,col,incoming[col]);await wait(95+rand(85))}
-  await wait(1080);await resolve();await showScoreReward(score-scoreBefore);busy=false;checkEnd()
+  const order=Array.from({length:COLS},(_,col)=>col);
+  for(let i=order.length-1;i>0;i--){const j=rand(i+1);[order[i],order[j]]=[order[j],order[i]]}
+  for(const col of order){
+    const x=worldWidth*(col+.5)/COLS+(Math.random()-.5)*ballRadius*.8;
+    spawnBall(incoming[col],x);await wait(90+rand(95))
+  }
+  await settle(1900);await resolve();await showScoreReward(score-scoreBefore);busy=false;checkEnd()
 }
 async function bonusDrop(){
-  const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return false;
-  const col=available[rand(available.length)],row=lowest(col);dropRelic(row,col,randomType(),true);await wait(1080);await resolve();return true
+  if(!availableSpace(1))return false;
+  spawnBall(randomType(),ballRadius+Math.random()*(worldWidth-ballRadius*2));
+  await settle(1500);await resolve();return true
 }
 async function superBonusRain(){
   const incoming=Array.from({length:12},randomType),spiral=$("#superSpiral");
@@ -105,34 +190,36 @@ async function superBonusRain(){
   tone(740,.28,.07);note(1110,.6,.045,"triangle",.1);
   await wait(window.matchMedia("(prefers-reduced-motion: reduce)").matches?550:2300);
   spiral.classList.remove("active");
-  const needed=Math.max(0,12-emptyCount());
-  if(needed){
-    const removed=new Set();
-    for(let row=0;row<ROWS&&removed.size<needed;row++)
-      for(let col=0;col<COLS&&removed.size<needed;col++)
-        if(board[row][col]!==null)removed.add(row+","+col);
-    render(removed);await wait(350);
-    for(const key of removed){const [row,col]=key.split(",").map(Number);board[row][col]=null}
-    gravity();render()
-  }
+  const needed=Math.max(0,balls.length+incoming.length-MAX_BALLS);
+  if(needed)await removeBalls([...balls].sort((a,b)=>a.y-b.y).slice(0,needed));
   for(const type of incoming){
-    const columns=Array.from({length:COLS},(_,col)=>col).filter(col=>lowest(col)>=0);
-    if(!columns.length)break;
-    const col=columns[rand(columns.length)],row=lowest(col);
-    dropRelic(row,col,type,true);
+    spawnBall(type,ballRadius+Math.random()*(worldWidth-ballRadius*2));
     await wait(110+rand(80))
   }
-  await wait(1100);await resolve()
+  await settle(2200);await resolve()
 }
 async function bonusMode(power){
-  inBonus=true;bonusPower=power;eyes=0;$("#bonusChute").classList.add("active");$(".temple").classList.add("bonus-active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
+  inBonus=true;bonusPower=power;eyes=0;$("#bonusChute").classList.add("active");$(".temple").classList.add("bonus-active");
+  $("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;
+  tone(760,.38,.08);render();await wait(750);
   if(power===BONUS_MAX)await superBonusRain();
   else for(let i=0;i<power*2;i++){if(!await bonusDrop())break;await wait(140)}
-  $("#bonusChute").classList.remove("active");$(".temple").classList.remove("bonus-active");score+=power*500*level;inBonus=false;bonusPower=0;render();$("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
+  $("#bonusChute").classList.remove("active");$(".temple").classList.remove("bonus-active");
+  score+=power*500*level;inBonus=false;bonusPower=0;render();
+  $("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
 }
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
-function checkEnd(){if(emptyCount()<COLS)gameOver()}
-function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;displayedScore=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;$("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()}
+function checkEnd(){if(!availableSpace(COLS))gameOver()}
+function reset(){
+  for(const ball of balls)ball.el.remove();balls=[];
+  score=0;displayedScore=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;bonusPower=0;
+  $("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerán siete reliquias independientes.";render()
+}
+measureBoard();
+if("ResizeObserver" in window)new ResizeObserver(measureBoard).observe(boardEl);
+else window.addEventListener("resize",measureBoard);
+requestAnimationFrame(physicsFrame);
+
 $("#intro").classList.remove("hidden","opening","is-loading");$("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×";e.currentTarget.setAttribute("aria-label",soundOn?"Silenciar música y sonido":"Activar música y sonido");if(soundOn)startMusic();else stopMusic()};$("#start").onclick=async e=>{
   const intro=$("#intro"),bar=$("#loadingBar"),label=$("#loadingLabel");
   e.currentTarget.disabled=true;startMusic();
