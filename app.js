@@ -1,6 +1,6 @@
 const ROWS=9,COLS=7,TYPES=["𓂀","𓆣","𓋹","☀","◆","𓅃"],BONUS_MIN=3,BONUS_MAX=6;
 const $=s=>document.querySelector(s),rand=n=>Math.floor(Math.random()*n),wait=ms=>new Promise(r=>setTimeout(r,ms));
-let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true,audioCtx=null,musicTimer=null,musicStep=0;
+let board=Array.from({length:ROWS},()=>Array(COLS).fill(null)),score=0,displayedScore=0,level=1,combos=0,eyes=0,busy=false,inBonus=false,soundOn=true,audioCtx=null,musicTimer=null,musicStep=0,musicStarted=false;
 const randomType=()=>rand(Math.min(TYPES.length,4+Math.floor(level/3))),makeRow=()=>Array.from({length:COLS},randomType);
 let nextRow=makeRow(),chosen=randomType(),boardEl=$("#board");
 
@@ -12,13 +12,13 @@ const MUSIC_SCALE=[146.83,155.56,185,196,220,233.08,277.18],MUSIC_PATTERN=[0,1,2
 function musicPulse(){
   if(!soundOn){musicTimer=null;return}
   const intensity=inBonus?2:eyes>=3?1:0,index=MUSIC_PATTERN[musicStep%MUSIC_PATTERN.length],freq=MUSIC_SCALE[index];
-  if(musicStep%2===0)note(freq,intensity===2?.34:.5,intensity===2?.018:.011,"triangle");
-  if(musicStep%8===0)note(MUSIC_SCALE[0]/2,1.6,.008,"sine");
-  if(intensity>0&&musicStep%2===0)drum(intensity===2?.035:.018);
-  if(intensity===2&&musicStep%4===2)note(freq*2,.22,.012,"square");
+  if(musicStep%2===0)note(freq,intensity===2?.34:.5,intensity===2?.055:.042,"triangle");
+  if(musicStep%8===0)note(MUSIC_SCALE[0]/2,1.6,.02,"sine");
+  if(intensity>0&&musicStep%2===0)drum(intensity===2?.07:.035);
+  if(intensity===2&&musicStep%4===2)note(freq*2,.22,.022,"square");
   musicStep++;musicTimer=setTimeout(musicPulse,intensity===2?210:intensity===1?285:390)
 }
-function startMusic(){if(musicTimer||!soundOn)return;audio();musicPulse()}
+function startMusic(){musicStarted=true;if(musicTimer||!soundOn||document.hidden)return;audio();musicPulse()}
 function stopMusic(){clearTimeout(musicTimer);musicTimer=null}
 
 function relic(type,extra=""){return type===null?"":`<span class="relic ${extra}" data-type="${type}">${TYPES[type]}</span>`}
@@ -111,4 +111,4 @@ $("#intro").classList.remove("hidden","opening","is-loading");$("#dropButton").o
   for(const [progress,text] of stages){bar.style.width=progress+"%";label.textContent=text;tone(300+progress*3,.08,.018);await wait(progress===100?500:330)}
   intro.classList.add("opening");await wait(720);intro.classList.add("hidden");
   $("#worldMap").classList.remove("hidden");
-};$("#enterHorus").onclick=()=>{$("#worldMap").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()};document.addEventListener("visibilitychange",()=>{if(document.hidden)stopMusic();else if(soundOn&&!$("#intro").classList.contains("hidden"))startMusic()});render();
+};$("#enterHorus").onclick=()=>{$("#worldMap").classList.add("hidden");$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()};document.addEventListener("visibilitychange",()=>{if(document.hidden)stopMusic();else if(soundOn&&musicStarted)startMusic()});render();
