@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#110b18">
   <meta name="description" content="Temple of Horus, puzzle de física y match-3 creado por Pilukarts.">
   <title>Temple of Horus — Pilukarts</title>
-  <link rel="stylesheet" href="styles.css?v=13">
-  <script defer src="app.js?v=15"></script>
+  <link rel="stylesheet" href="styles.css?v=14">
+  <script defer src="app.js?v=16"></script>
   <!-- pages-build-20260915 -->
 </head>
 <body>
@@ -52,13 +52,18 @@
   <div id="scoreReward" class="score-reward" role="status" aria-live="polite"></div>
 
   <div id="intro" class="modal loading-modal">
-    <div class="loading-card">
+    <div id="studioSplash" class="loading-card studio-splash">
       <span class="intro-eye">✦</span>
-      <small id="loaderTitle">PILUKARTS STUDIOS</small>
       <h2>PILUKARTS<br><em>STUDIOS</em></h2>
-      <div class="loading-track" aria-hidden="true"><i id="loadingBar"></i></div>
-      <b id="loadingLabel">READY</b>
+      <p class="studio-presents">PRESENTS</p>
       <button id="start">TAP TO BEGIN</button>
+    </div>
+    <div id="templeSplash" class="loading-card temple-splash" hidden>
+      <span class="temple-emblem" aria-hidden="true">𓂀</span>
+      <small>AN ANCIENT ADVENTURE</small>
+      <h2>TEMPLE<br><em>OF HORUS</em></h2>
+      <div class="loading-track" aria-hidden="true"><i id="loadingBar"></i></div>
+      <b id="loadingLabel" role="status" aria-live="polite">LOADING RELICS</b>
     </div>
   </div>
   <section id="worldMap" class="modal world-map hidden" aria-label="World map">

@@ -391,3 +391,20 @@ body:before{
 .map-world:hover,.map-world:focus-visible{outline:2px solid #a8f5ff;filter:brightness(1.15)}
 .map-hint{margin-top:26px;font-size:13px}
 @media(max-width:520px){.map-world{gap:10px;padding:12px}.map-world-icon{width:54px;height:54px}}
+
+/* Studio presents the game before its Egyptian title and loading scene. */
+.loading-stage[hidden],.loading-card[hidden]{display:none}
+.studio-splash .intro-eye{color:#9feeff;text-shadow:0 0 30px #62dcff}
+.studio-presents{margin:22px 0 6px;color:#ffd282;font-size:15px;font-weight:900;letter-spacing:.35em}
+.temple-splash .temple-emblem{
+  display:grid;place-items:center;width:120px;height:110px;margin:0 auto 10px;
+  border:3px solid #dba548;border-radius:50% 50% 45% 45%;
+  background:radial-gradient(circle,#31dce9,#153e6d 50%,#100b19 75%);
+  color:#ffe2a0;font-size:75px;text-shadow:0 0 22px #71eaf4;
+  box-shadow:inset 0 0 24px #031125,0 0 34px #e8aa4577;
+  animation:loading-eye 1.55s ease-in-out infinite alternate
+}
+.temple-splash h2{color:#fff2d0;text-shadow:0 4px 3px #24100c,0 0 19px #c27c37}
+.temple-splash h2 em{color:#ffc64b}
+.temple-splash .loading-track{margin-top:31px}
+@media(prefers-reduced-motion:reduce){.temple-splash .temple-emblem{animation:none}}

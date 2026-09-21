@@ -105,8 +105,9 @@ function checkEnd(){if(emptyCount()<COLS)gameOver()}
 function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;displayedScore=0;level=1;combos=0;eyes=0;nextRow=makeRow();newChosen();busy=false;inBonus=false;$("#message").onclick=null;$("#message").textContent="Pulsa SPIN: caerá una fila completa.";render()}
 $("#intro").classList.remove("hidden","opening","is-loading");$("#dropButton").onclick=spin;$("#sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫":"×";e.currentTarget.setAttribute("aria-label",soundOn?"Silenciar música y sonido":"Activar música y sonido");if(soundOn)startMusic();else stopMusic()};$("#start").onclick=async e=>{
   const intro=$("#intro"),bar=$("#loadingBar"),label=$("#loadingLabel");
-  e.currentTarget.disabled=true;intro.classList.add("is-loading");startMusic();
-  const stages=[[18,"AWAKENING WORLDS"],[43,"LOADING ADVENTURES"],[69,"LIGHTING THE TORCHES"],[88,"OPENING THE MAP"],[100,"CHOOSE YOUR WORLD"]];
+  e.currentTarget.disabled=true;startMusic();
+  $("#studioSplash").hidden=true;$("#templeSplash").hidden=false;intro.classList.add("is-loading");
+  const stages=[[18,"LOADING RELICS"],[43,"AWAKENING THE EYE"],[69,"LIGHTING THE TORCHES"],[88,"OPENING THE MAP"],[100,"CHOOSE YOUR WORLD"]];
   for(const [progress,text] of stages){bar.style.width=progress+"%";label.textContent=text;tone(300+progress*3,.08,.018);await wait(progress===100?500:330)}
   intro.classList.add("opening");await wait(720);intro.classList.add("hidden");
   $("#worldMap").classList.remove("hidden");
