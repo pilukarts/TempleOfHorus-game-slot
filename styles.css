@@ -175,3 +175,59 @@ body:before{
 @media(prefers-reduced-motion:reduce){
   .flame,.torch:before{animation:none}
 }
+
+
+/* Sky-stone SPIN button */
+#dropButton{
+  position:relative;
+  min-width:154px;
+  min-height:56px;
+  padding:13px 28px;
+  overflow:hidden;
+  border:3px solid #bcecff;
+  border-radius:50% / 46%;
+  background:
+    radial-gradient(ellipse at 34% 22%,#effcff 0 4%,transparent 17%),
+    radial-gradient(ellipse at 68% 72%,#348ec2 0 8%,transparent 28%),
+    linear-gradient(145deg,#a9ebff 0,#56bde9 35%,#2586bd 68%,#185782 100%);
+  color:#f7fdff;
+  font-family:Georgia,serif;
+  font-size:17px;
+  font-weight:950;
+  letter-spacing:.16em;
+  text-shadow:0 2px 2px #164663,0 0 7px #dff8ff;
+  box-shadow:
+    inset 5px 7px 10px #e8fbff80,
+    inset -8px -9px 12px #0d426b88,
+    0 5px 0 #123e61,
+    0 10px 20px #02080eaa,
+    0 0 22px #55cfff55;
+  transition:transform .14s ease,filter .14s ease,box-shadow .14s ease;
+}
+#dropButton:before{
+  content:"";
+  position:absolute;
+  inset:7px 13px auto;
+  height:32%;
+  border-radius:50%;
+  background:linear-gradient(180deg,#ffffff8c,transparent);
+  transform:rotate(-3deg);
+  pointer-events:none;
+}
+#dropButton:hover{
+  filter:brightness(1.12) saturate(1.08);
+  transform:translateY(-1px) scale(1.02);
+}
+#dropButton:active{
+  transform:translateY(4px) scale(.98);
+  box-shadow:
+    inset 5px 7px 12px #0d426b77,
+    inset -4px -5px 8px #dff8ff55,
+    0 1px 0 #123e61,
+    0 5px 10px #02080e99,
+    0 0 15px #55cfff44;
+}
+#dropButton:focus-visible{outline:3px solid #fff4a7;outline-offset:4px}
+@media(max-width:520px){
+  #dropButton{min-width:118px;min-height:50px;padding:11px 18px;font-size:14px}
+}
