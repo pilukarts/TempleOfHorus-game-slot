@@ -37,3 +37,141 @@
 /* Slightly larger interface copy */
 .brand small,.hud small,.next-panel small{font-size:10px}.message{font-size:14px;line-height:1.4}.rules{font-size:10px;line-height:1.4}.chosen-relic strong{font-size:12px}.chosen-relic b{font-size:10px}.bonus-chute>span{font-size:9px}.randomizer small{font-size:7px}
 @media(max-width:520px){.brand small,.hud small,.next-panel small{font-size:9px}.message{font-size:12px}.rules{font-size:9px}}
+
+
+/* Immersive temple scenery */
+body{
+  position:relative;
+  background:
+    radial-gradient(circle at 14% 31%,#ffb12f24 0 7%,transparent 23%),
+    radial-gradient(circle at 86% 31%,#ffb12f24 0 7%,transparent 23%),
+    linear-gradient(#170d14aa,#050308ee),
+    repeating-linear-gradient(90deg,#1a1014 0 72px,#26171a 73px 75px,#130b10 76px 148px);
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 76px,#d0a05b0a 77px 79px),
+    radial-gradient(ellipse at 50% 0,#8b4b292e,transparent 58%);
+  box-shadow:inset 0 0 160px #000;
+}
+.temple-scenery{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.wall-glyphs{
+  position:absolute;
+  top:8vh;
+  bottom:4vh;
+  width:max(74px,calc((100vw - 720px)/2));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#c6924e38;
+  font:700 clamp(24px,3.2vw,46px)/1.75 Georgia,serif;
+  letter-spacing:.18em;
+  text-align:center;
+  writing-mode:vertical-rl;
+  text-orientation:upright;
+  text-shadow:1px 2px 0 #000,0 0 18px #f0a43b18;
+  border-inline:1px solid #c18b4826;
+  background:linear-gradient(90deg,#08050966,#6f43201c,#08050966);
+  box-shadow:inset 0 0 45px #000b;
+}
+.wall-glyphs-left{left:0}
+.wall-glyphs-right{right:0;transform:scaleX(-1)}
+.torch{
+  position:absolute;
+  top:28vh;
+  width:54px;
+  height:150px;
+  filter:drop-shadow(0 12px 8px #000);
+}
+.torch-left{left:max(18px,calc((100vw - 820px)/2))}
+.torch-right{right:max(18px,calc((100vw - 820px)/2))}
+.torch:before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-70px;
+  width:220px;
+  height:220px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,#ffcc6752 0,#ff792426 28%,transparent 68%);
+  animation:torch-glow 1.4s ease-in-out infinite alternate;
+}
+.flame{
+  position:absolute;
+  z-index:2;
+  left:50%;
+  top:0;
+  width:27px;
+  height:52px;
+  transform:translateX(-50%) rotate(3deg);
+  transform-origin:50% 100%;
+  border-radius:55% 45% 58% 42% / 72% 68% 32% 28%;
+  background:radial-gradient(circle at 48% 72%,#fffbd0 0 10%,#ffd75c 24%,#ff7a1c 55%,#b7190a 76%,transparent 78%);
+  box-shadow:0 0 15px #ffc43c,0 -8px 24px #ff5c16;
+  animation:torch-flame .22s ease-in-out infinite alternate;
+}
+.torch-cup{
+  position:absolute;
+  z-index:1;
+  left:50%;
+  top:43px;
+  width:46px;
+  height:25px;
+  transform:translateX(-50%);
+  border:2px solid #e3ac52;
+  border-radius:5px 5px 20px 20px;
+  background:linear-gradient(90deg,#4c2919,#c08038 45%,#5a301b);
+  box-shadow:inset 0 4px 7px #150905,0 0 8px #ff9e35;
+}
+.torch-handle{
+  position:absolute;
+  left:50%;
+  top:61px;
+  width:12px;
+  height:84px;
+  transform:translateX(-50%);
+  border:1px solid #b07431;
+  border-radius:0 0 8px 8px;
+  background:linear-gradient(90deg,#31190f,#a66b2d,#3b1d10);
+}
+.game-shell{z-index:2}
+.temple{
+  border-color:#b67a38;
+  background:
+    linear-gradient(90deg,#2a171b 0 8%,transparent 8% 92%,#2a171b 92%),
+    radial-gradient(circle at 50% 4%,#6a3d2c,#1d1018 46%,#09070b);
+  box-shadow:inset 0 0 55px #000,0 18px 55px #000b,0 0 32px #c5782620;
+}
+.temple:before{
+  background:
+    linear-gradient(90deg,#c6914910 1px,transparent 1px),
+    repeating-linear-gradient(0deg,transparent 0 45px,#d28c3a14 46px 48px);
+  background-size:58px 100%,100% 100%;
+}
+@keyframes torch-flame{
+  from{transform:translateX(-50%) rotate(-4deg) scale(.94,1.04);filter:brightness(.92)}
+  to{transform:translateX(-50%) rotate(5deg) scale(1.07,.96);filter:brightness(1.2)}
+}
+@keyframes torch-glow{
+  from{opacity:.62;scale:.94}
+  to{opacity:1;scale:1.06}
+}
+@media(max-width:900px){
+  .wall-glyphs{width:48px;font-size:21px;opacity:.62}
+  .torch{top:30vh;scale:.74}
+  .torch-left{left:-7px}.torch-right{right:-7px}
+}
+@media(max-width:620px){
+  .wall-glyphs{opacity:.25;width:28px}
+  .torch{top:24vh;scale:.5}
+  .torch-left{left:-15px}.torch-right{right:-15px}
+  body{background:radial-gradient(circle at 50% 16%,#63331f3d,transparent 42%),linear-gradient(#130b13,#050308)}
+}
+@media(prefers-reduced-motion:reduce){
+  .flame,.torch:before{animation:none}
+}
