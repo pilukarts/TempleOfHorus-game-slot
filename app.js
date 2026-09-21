@@ -96,9 +96,38 @@ async function bonusDrop(){
   const available=Array.from({length:COLS},(_,c)=>c).filter(c=>lowest(c)>=0);if(!available.length)return false;
   const col=available[rand(available.length)],row=lowest(col);dropRelic(row,col,randomType(),true);await wait(1080);await resolve();return true
 }
+async function superBonusRain(){
+  const incoming=Array.from({length:12},randomType),spiral=$("#superSpiral");
+  spiral.querySelector(".spiral-orbs").innerHTML=incoming.map((type,i)=>
+    `<span class="relic spiral-orb" data-type="${type}" style="--i:${i}">${TYPES[type]}</span>`).join("");
+  spiral.classList.add("active");
+  $("#message").textContent="¡SUPER BONUS! Las doce reliquias giran alrededor del Ojo de Horus.";
+  tone(740,.28,.07);note(1110,.6,.045,"triangle",.1);
+  await wait(window.matchMedia("(prefers-reduced-motion: reduce)").matches?550:2300);
+  spiral.classList.remove("active");
+  const needed=Math.max(0,12-emptyCount());
+  if(needed){
+    const removed=new Set();
+    for(let row=0;row<ROWS&&removed.size<needed;row++)
+      for(let col=0;col<COLS&&removed.size<needed;col++)
+        if(board[row][col]!==null)removed.add(row+","+col);
+    render(removed);await wait(350);
+    for(const key of removed){const [row,col]=key.split(",").map(Number);board[row][col]=null}
+    gravity();render()
+  }
+  for(const type of incoming){
+    const columns=Array.from({length:COLS},(_,col)=>col).filter(col=>lowest(col)>=0);
+    if(!columns.length)break;
+    const col=columns[rand(columns.length)],row=lowest(col);
+    dropRelic(row,col,type,true);
+    await wait(110+rand(80))
+  }
+  await wait(1100);await resolve()
+}
 async function bonusMode(power){
   inBonus=true;bonusPower=power;eyes=0;$("#bonusChute").classList.add("active");$(".temple").classList.add("bonus-active");$("#message").textContent=`¡CANAL DE HORUS! Bonus de ${power} Ojos: ${power*2} reliquias.`;tone(760,.38,.08);render();await wait(750);
-  for(let i=0;i<power*2;i++){if(!await bonusDrop())break;await wait(140)}
+  if(power===BONUS_MAX)await superBonusRain();
+  else for(let i=0;i<power*2;i++){if(!await bonusDrop())break;await wait(140)}
   $("#bonusChute").classList.remove("active");$(".temple").classList.remove("bonus-active");score+=power*500*level;inBonus=false;bonusPower=0;render();$("#message").textContent=power===BONUS_MAX?"¡BONUS MÁXIMO! El templo ha despertado.":"El Canal se cierra. Continúa la expedición."
 }
 function gameOver(){busy=true;$("#message").textContent="El templo está sellado. Toca aquí para comenzar de nuevo.";$("#message").onclick=reset}
