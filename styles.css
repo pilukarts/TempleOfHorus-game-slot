@@ -231,3 +231,53 @@ body:before{
 @media(max-width:520px){
   #dropButton{min-width:118px;min-height:50px;padding:11px 18px;font-size:14px}
 }
+
+
+/* End-of-spin points reward */
+.score-reward{
+  position:fixed;
+  z-index:18;
+  left:50%;
+  top:43%;
+  width:min(88vw,430px);
+  padding:18px 24px 20px;
+  pointer-events:none;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.35);
+  text-align:center;
+  border:2px solid #ffe09a;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 50% 0,#55d8ff42,transparent 54%),
+    linear-gradient(145deg,#173e61ee,#0b1830f5 55%,#25122def);
+  box-shadow:inset 0 0 25px #87e4ff33,0 12px 45px #000d,0 0 36px #5cdcff66;
+}
+.score-reward small{
+  display:block;
+  color:#9eeaff;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.24em;
+}
+.score-reward strong{
+  display:block;
+  margin-top:5px;
+  color:#fff1a7;
+  font:950 clamp(25px,7vw,43px)/1 Georgia,serif;
+  text-shadow:0 3px 2px #4d2b0c,0 0 13px #ffc64b;
+}
+.score-reward.show{animation:score-reward-zoom 2s cubic-bezier(.2,.8,.2,1) both}
+@keyframes score-reward-zoom{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(-3deg)}
+  16%{opacity:1;transform:translate(-50%,-50%) scale(1.16) rotate(1deg)}
+  30%,66%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  82%{opacity:1;transform:translate(-50%,-72%) scale(.92)}
+  100%{opacity:0;transform:translate(-50%,-190%) scale(.42)}
+}
+@media(max-width:520px){
+  .score-reward{top:46%;padding:15px 16px 17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .score-reward.show{animation:score-reward-fade 2s ease both}
+  @keyframes score-reward-fade{10%,75%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+}
